@@ -19,16 +19,24 @@
     </div>
 </div>
 
+<!-- Level Up Overlay -->
+<div id="sys-levelup-overlay" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255, 215, 0, 0.1); z-index: 100001; justify-content: center; align-items: center; pointer-events: none;">
+    <div style="font-family: 'Courier New', Courier, monospace; font-size: 3rem; color: #ffd700; font-weight: bold; text-shadow: 0 0 30px #ffd700; animation: sys-fadeout 3s forwards;">
+        LEVEL UP!
+    </div>
+</div>
+
 <!-- Main System Modal -->
 <div id="sys-main-modal" class="sys-modal">
     <div class="sys-header">
-        <div class="sys-title"><i class="fa-solid fa-microchip"></i> THE SYSTEM V2</div>
+        <div class="sys-title"><i class="fa-solid fa-microchip"></i> THE SYSTEM V3</div>
         <div id="sys-close" class="sys-close-btn"><i class="fa-solid fa-xmark"></i></div>
     </div>
     
     <div class="sys-tabs">
         <div class="sys-tab active" data-target="sys-panel-status">Status</div>
         <div class="sys-tab" data-target="sys-panel-quests">Quests</div>
+        <div class="sys-tab" data-target="sys-panel-inventory">Inventory</div>
         <div class="sys-tab" data-target="sys-panel-map">Map</div>
         <div class="sys-tab" data-target="sys-panel-settings"><i class="fa-solid fa-gear"></i></div>
     </div>
@@ -36,49 +44,81 @@
     <div class="sys-content">
         <!-- STATUS -->
         <div id="sys-panel-status" class="sys-panel active">
-            <h3 style="margin-top: 0;">CLASS: <span id="sys-class-name" style="color: var(--sys-main);">None</span></h3>
+            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <h3 style="margin: 0;">CLASS: <span id="sys-class-name" style="color: var(--sys-main);">None</span></h3>
+                <h3 style="margin: 0; color: #ffd700;">LVL: <span id="sys-val-level">1</span></h3>
+            </div>
+            
+            <!-- XP BAR -->
+            <div style="width: 100%; height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; margin-bottom: 10px; border: 1px solid rgba(255,215,0,0.3);">
+                <div id="sys-val-xp-bar" style="width: 0%; height: 100%; background: #ffd700; box-shadow: 0 0 10px #ffd700; transition: width 0.5s;"></div>
+            </div>
+            <div style="text-align: right; font-size: 0.8rem; color: #ffd700; margin-top: -5px;" id="sys-val-xp-text">0 / 100 XP</div>
             
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <div style="flex: 1; background: rgba(0,0,0,0.3); padding: 10px; text-align: center; border-radius: 4px;">
+                <div style="flex: 1; background: rgba(0,0,0,0.3); padding: 10px; text-align: center; border-radius: 4px; border-bottom: 3px solid var(--sys-red);">
                     <div style="font-size: 0.8rem; color: #aaa;">HP</div>
                     <div style="font-size: 1.2rem; font-weight: bold; color: var(--sys-red);" id="sys-val-hp">100/100</div>
                 </div>
-                <div style="flex: 1; background: rgba(0,0,0,0.3); padding: 10px; text-align: center; border-radius: 4px;">
+                <div style="flex: 1; background: rgba(0,0,0,0.3); padding: 10px; text-align: center; border-radius: 4px; border-bottom: 3px solid #2ecc71;">
                     <div style="font-size: 0.8rem; color: #aaa;" id="sys-lbl-sp">STAMINA</div>
-                    <div style="font-size: 1.2rem; font-weight: bold; color: #f1c40f;" id="sys-val-sp">100/100</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: #2ecc71;" id="sys-val-sp">100/100</div>
                 </div>
-                <div style="flex: 1; background: rgba(0,0,0,0.3); padding: 10px; text-align: center; border-radius: 4px;">
+                <div style="flex: 1; background: rgba(0,0,0,0.3); padding: 10px; text-align: center; border-radius: 4px; border-bottom: 3px solid var(--sys-main);">
+                    <div style="font-size: 0.8rem; color: #aaa;">MANA</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--sys-main);" id="sys-val-mp">50/50</div>
+                </div>
+                <div style="flex: 1; background: rgba(0,0,0,0.3); padding: 10px; text-align: center; border-radius: 4px; border-bottom: 3px solid #f1c40f;">
                     <div style="font-size: 0.8rem; color: #aaa;">GOLD</div>
                     <div style="font-size: 1.2rem; font-weight: bold; color: #f1c40f;" id="sys-val-gold">0</div>
                 </div>
             </div>
             
-            <h4>ACTIVE DEBUFFS</h4>
-            <div id="sys-debuffs-list" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+            <h4>ACTIVE STATUS EFFECTS</h4>
+            <div id="sys-debuffs-list" style="display: flex; flex-direction: column; gap: 10px;">
                 <!-- Debuffs -->
-            </div>
-            
-            <h4>INVENTORY & SKILLS</h4>
-            <div id="sys-inventory-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <!-- Inventory -->
             </div>
         </div>
         
         <!-- QUESTS -->
         <div id="sys-panel-quests" class="sys-panel">
-            <h3 style="margin-top: 0;">ACTIVE QUESTS</h3>
-            <p style="font-size: 0.8rem; color: #888;">Quests are assigned automatically by the System based on your actions.</p>
-            <div id="sys-quests-list" style="display: flex; flex-direction: column; gap: 10px;">
+            <h3 style="margin-top: 0; color: #f1c40f;">ACTIVE QUESTS</h3>
+            <div id="sys-quests-list" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
                 <!-- Quests -->
+            </div>
+            <h3 style="margin-top: 0; color: #888;">COMPLETED QUESTS</h3>
+            <div id="sys-completed-quests-list" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Completed Quests -->
+            </div>
+        </div>
+
+        <!-- INVENTORY / SHOP -->
+        <div id="sys-panel-inventory" class="sys-panel">
+            <h3 style="margin-top: 0;">YOUR INVENTORY</h3>
+            <div id="sys-inventory-list" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; max-height: 250px; overflow-y: auto; padding-right: 5px;">
+                <!-- Inventory Items -->
+            </div>
+            <hr style="border-color: rgba(255,255,255,0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="margin: 0; color: #f1c40f;">MERCHANT WARES</h3>
+                <div style="display: flex; gap: 10px;">
+                    <button id="sys-btn-refresh-shop" class="sys-btn" style="font-size: 0.8rem; padding: 4px 8px;"><i class="fa-solid fa-rotate"></i> Restock</button>
+                    <button id="sys-btn-refresh-shop-18" class="sys-btn" style="font-size: 0.8rem; padding: 4px 8px; border-color: #e74c3c; color: #e74c3c;"><i class="fa-solid fa-masks-theater"></i> Black Market</button>
+                </div>
+            </div>
+            <div id="sys-shop-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; padding-right: 5px;">
+                <i style="color:#888;">Shop is empty. Click Restock to search for nearby items.</i>
             </div>
         </div>
         
         <!-- MAP -->
         <div id="sys-panel-map" class="sys-panel">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="margin-top: 0;">WORLD MAP</h3>
-                <button id="sys-btn-gen-map" class="sys-btn"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Map View</button>
+                <h3 style="margin-top: 0; color: #2ecc71;">WORLD MAP</h3>
+                <button id="sys-btn-gen-map" class="sys-btn" style="border-color:#2ecc71; color:#2ecc71;"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Area</button>
             </div>
+            <p style="font-size: 0.8rem; color: #888;">AI will analyze your surroundings and generate a map prompt.</p>
+            <textarea id="sys-map-prompt" style="width: 100%; height: 80px; background: rgba(0,0,0,0.5); border: 1px solid var(--sys-border); color: #fff; border-radius: 4px; padding: 10px; margin-bottom: 10px;" readonly></textarea>
             <div class="sys-map-container" id="sys-map-container">
                 <div id="sys-map-loader" style="display: none; flex-direction: column; align-items: center; gap: 10px; color: var(--sys-main);">
                     <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
@@ -93,7 +133,7 @@
             <h3 style="margin-top: 0;">SYSTEM CONFIGURATION</h3>
             <div style="display: flex; flex-direction: column; gap: 10px;">
                 <label style="color: #ccc; font-size: 0.9em;">AI Generation Profile (For Automation)</label>
-                <select id="sys-opt-api" class="sys-select"></select>
+                <select id="sys-opt-api" class="sys-select" style="background: rgba(0,0,0,0.5); border: 1px solid var(--sys-border); color: white; padding: 5px;"></select>
                 
                 <button id="sys-btn-reset" class="sys-btn" style="border-color: var(--sys-red); color: var(--sys-red); margin-top: 20px;">
                     <i class="fa-solid fa-skull"></i> HARD RESET & RE-AWAKEN
@@ -102,3 +142,19 @@
         </div>
     </div>
 </div>
+
+<style>
+@keyframes sys-fadeout {
+    0% { opacity: 1; transform: scale(1); }
+    80% { opacity: 1; transform: scale(1.1); }
+    100% { opacity: 0; transform: scale(1.2); }
+}
+.sys-item-card {
+    background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; 
+    border-left: 3px solid #3498db; position: relative;
+}
+.sys-buy-btn {
+    position: absolute; right: 10px; top: 10px; background: #f1c40f; color: #000; border: none; padding: 4px 10px; font-weight: bold; cursor: pointer; border-radius: 4px;
+}
+.sys-buy-btn:hover { background: #fff; }
+</style>
