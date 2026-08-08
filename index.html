@@ -1,0 +1,104 @@
+<!-- Floating Menu -->
+<div class="sys-float-container">
+    <div id="sys-trigger-map" class="sys-trigger-btn" title="Open World Map" style="background: rgba(46, 204, 113, 0.2); border-color: #2ecc71; color: #2ecc71;">
+        <i class="fa-solid fa-map-location-dot"></i>
+    </div>
+    <div id="sys-trigger-main" class="sys-trigger-btn" title="Open System">
+        <i class="fa-solid fa-eye"></i>
+    </div>
+</div>
+
+<!-- Awakening / Class Selection -->
+<div id="sys-awakening-overlay">
+    <div class="sys-awakening-box">
+        <h2 style="color: var(--sys-main); text-shadow: 0 0 10px var(--sys-glow); letter-spacing: 2px;">AWAKENING INITIATED</h2>
+        <p>The System has chosen you. Select your path.</p>
+        <div class="sys-class-grid" id="sys-class-grid">
+            <!-- Classes injected by JS -->
+        </div>
+    </div>
+</div>
+
+<!-- Main System Modal -->
+<div id="sys-main-modal" class="sys-modal">
+    <div class="sys-header">
+        <div class="sys-title"><i class="fa-solid fa-microchip"></i> THE SYSTEM V2</div>
+        <div id="sys-close" class="sys-close-btn"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    
+    <div class="sys-tabs">
+        <div class="sys-tab active" data-target="sys-panel-status">Status</div>
+        <div class="sys-tab" data-target="sys-panel-quests">Quests</div>
+        <div class="sys-tab" data-target="sys-panel-map">Map</div>
+        <div class="sys-tab" data-target="sys-panel-settings"><i class="fa-solid fa-gear"></i></div>
+    </div>
+    
+    <div class="sys-content">
+        <!-- STATUS -->
+        <div id="sys-panel-status" class="sys-panel active">
+            <h3 style="margin-top: 0;">CLASS: <span id="sys-class-name" style="color: var(--sys-main);">None</span></h3>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <div style="flex: 1; background: rgba(0,0,0,0.3); padding: 10px; text-align: center; border-radius: 4px;">
+                    <div style="font-size: 0.8rem; color: #aaa;">HP</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--sys-red);" id="sys-val-hp">100/100</div>
+                </div>
+                <div style="flex: 1; background: rgba(0,0,0,0.3); padding: 10px; text-align: center; border-radius: 4px;">
+                    <div style="font-size: 0.8rem; color: #aaa;" id="sys-lbl-sp">STAMINA</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: #f1c40f;" id="sys-val-sp">100/100</div>
+                </div>
+                <div style="flex: 1; background: rgba(0,0,0,0.3); padding: 10px; text-align: center; border-radius: 4px;">
+                    <div style="font-size: 0.8rem; color: #aaa;">GOLD</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: #f1c40f;" id="sys-val-gold">0</div>
+                </div>
+            </div>
+            
+            <h4>ACTIVE DEBUFFS</h4>
+            <div id="sys-debuffs-list" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                <!-- Debuffs -->
+            </div>
+            
+            <h4>INVENTORY & SKILLS</h4>
+            <div id="sys-inventory-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <!-- Inventory -->
+            </div>
+        </div>
+        
+        <!-- QUESTS -->
+        <div id="sys-panel-quests" class="sys-panel">
+            <h3 style="margin-top: 0;">ACTIVE QUESTS</h3>
+            <p style="font-size: 0.8rem; color: #888;">Quests are assigned automatically by the System based on your actions.</p>
+            <div id="sys-quests-list" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Quests -->
+            </div>
+        </div>
+        
+        <!-- MAP -->
+        <div id="sys-panel-map" class="sys-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin-top: 0;">WORLD MAP</h3>
+                <button id="sys-btn-gen-map" class="sys-btn"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Map View</button>
+            </div>
+            <div class="sys-map-container" id="sys-map-container">
+                <div id="sys-map-loader" style="display: none; flex-direction: column; align-items: center; gap: 10px; color: var(--sys-main);">
+                    <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
+                    <span>System is surveying the area...</span>
+                </div>
+                <img id="sys-map-img" src="" style="display: none;" />
+            </div>
+        </div>
+        
+        <!-- SETTINGS -->
+        <div id="sys-panel-settings" class="sys-panel">
+            <h3 style="margin-top: 0;">SYSTEM CONFIGURATION</h3>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <label style="color: #ccc; font-size: 0.9em;">AI Generation Profile (For Automation)</label>
+                <select id="sys-opt-api" class="sys-select"></select>
+                
+                <button id="sys-btn-reset" class="sys-btn" style="border-color: var(--sys-red); color: var(--sys-red); margin-top: 20px;">
+                    <i class="fa-solid fa-skull"></i> HARD RESET & RE-AWAKEN
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

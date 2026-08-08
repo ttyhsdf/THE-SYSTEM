@@ -1,0 +1,10 @@
+{
+    "name": "The System V2 (LitRPG Engine)",
+    "description": "An autonomous Game Master system with Class Awakening, automated quests, shop, and debuffs.",
+    "version": "2.0.0",
+    "author": "Lini",
+    "main": "index.js",
+    "assets": [
+        "style.css"
+    ]
+}
