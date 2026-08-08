@@ -3,7 +3,7 @@ import { saveSettingsDebounced, setExtensionPrompt } from "../../../../script.js
 import { eventSource, event_types } from "../../../events.js";
 import { ConnectionManagerRequestService } from "../../shared.js";
 import { executeSlashCommandsOnChatInput } from "../../../slash-commands.js";
-import { EVALUATE_TURN_PROMPT, GENERATE_SHOP_PROMPT, GENERATE_SHOP_18_PROMPT, GENERATE_QUEST_PROMPT, GENERATE_MAP_PROMPT } from "./prompts.js";
+import { PROMPTS } from "./prompts.js";
 
 const extensionName = "sillytavern-litrpg-system"; // Keep download folder name here
 const extensionFolderPath = `scripts/extensions/third-party/${extensionName}`;
@@ -32,7 +32,7 @@ const DEFAULT_SYS = {
 
 let sys = null;
 let isEvaluating = false;
-let globalSettings = { enabled: true, apiProfile: "" };
+let globalSettings = { enabled: true, apiProfile: "", language: "en" };
 
 jQuery(async () => {
     try {
@@ -74,8 +74,9 @@ async function initUI() {
     
     // Load global settings
     const st = getContext().extensionSettings;
-    if (!st.litrpg_v4_global) st.litrpg_v4_global = { enabled: true, apiProfile: "" };
+    if (!st.litrpg_v4_global) st.litrpg_v4_global = { enabled: true, apiProfile: "", language: "en" };
     globalSettings = st.litrpg_v4_global;
+    if (!globalSettings.language) globalSettings.language = "en";
     
     $("#sys-toggle-enabled").prop("checked", globalSettings.enabled).on("change", function() {
         globalSettings.enabled = $(this).prop("checked");
@@ -213,6 +214,10 @@ function setupEvents() {
         if (globalSettings.apiProfile) $("#sys-opt-api").val(globalSettings.apiProfile);
         $("#sys-opt-api").on('change', function() { globalSettings.apiProfile = $(this).val(); saveGlobal(); });
     }
+    
+    // Language Dropdown
+    if (globalSettings.language) $("#sys-opt-lang").val(globalSettings.language);
+    $("#sys-opt-lang").on('change', function() { globalSettings.language = $(this).val(); saveGlobal(); });
 }
 
 function checkLevelUp() {
@@ -353,12 +358,15 @@ function injectContext() {
         invStr = "INVENTORY:\n" + sys.inventory.map(i => `- ${i.name} (${i.type}): ${i.desc}`).join('\n');
     }
     
-    const p = `[THE SYSTEM V4] 
-Class: ${sys.playerClass.name} | Lvl: ${sys.level}
-HP: ${sys.hp}/${sys.maxHp} | SP: ${sys.sp}/${sys.maxSp} | MP: ${sys.mp}/${sys.maxMp}
-${debuffStr}
-${invStr}
-ANTI-GODMODE IS ACTIVE. The user is subject to these RPG mechanics. They cannot use items they do not have in their INVENTORY. If HP is low, they are wounded. You must enforce failures if they try to win without effort.`;
+    const lang = globalSettings.language || "en";
+    let p = PROMPTS[lang].INJECT_CONTEXT;
+    p = p.replace("{{CLASS}}", sys.playerClass.name)
+         .replace("{{LEVEL}}", sys.level)
+         .replace("{{HP}}", sys.hp).replace("{{MAXHP}}", sys.maxHp)
+         .replace("{{SP}}", sys.sp).replace("{{MAXSP}}", sys.maxSp)
+         .replace("{{MP}}", sys.mp).replace("{{MAXMP}}", sys.maxMp)
+         .replace("{{DEBUFFS}}", debuffStr)
+         .replace("{{INVENTORY}}", invStr);
 
     try { setExtensionPrompt(extensionName, p, 1, 0); } 
     catch { getContext().extensionPrompt["litrpg_v4"] = p; }
@@ -390,7 +398,8 @@ async function evaluateTurn() {
         
         const ctx = getContext().chat.slice(-5).map(m => `${m.name}: ${m.mes}`).join('\n');
         const stats = `HP:${sys.hp}, SP:${sys.sp}, MP:${sys.mp}, Gold:${sys.gold}`;
-        const p = EVALUATE_TURN_PROMPT.replace('{{GENRE}}', sys.genre).replace('{{CHAT_CONTEXT}}', ctx).replace('{{CURRENT_STATS}}', stats);
+        const lang = globalSettings.language || "en";
+        const p = PROMPTS[lang].EVALUATE_TURN.replace('{{GENRE}}', sys.genre).replace('{{CHAT_CONTEXT}}', ctx).replace('{{CURRENT_STATS}}', stats);
         
         const res = await callAI(p);
         if (!res) { isEvaluating = false; return; }
@@ -415,7 +424,8 @@ async function evaluateTurn() {
         }
         
         if (res.triggerQuest) {
-            const qp = GENERATE_QUEST_PROMPT.replace(/\{\{TITLE\}\}/g, res.triggerQuest);
+            const lang = globalSettings.language || "en";
+            const qp = PROMPTS[lang].GENERATE_QUEST.replace(/\{\{TITLE\}\}/g, res.triggerQuest);
             const q = await callAI(qp);
             if (q && q.title) { sys.quests.push(q); showToast(`NEW QUEST: ${q.title}`, "info"); changed = true; }
         }
@@ -445,7 +455,8 @@ async function evaluateTurn() {
 async function refreshShop(isNsfw = false) {
     if(!sys) return;
     showToast(isNsfw ? "Connecting to Black Market..." : "Generating shop items...", "info");
-    const p = isNsfw ? GENERATE_SHOP_18_PROMPT : GENERATE_SHOP_PROMPT;
+    const lang = globalSettings.language || "en";
+    const p = isNsfw ? PROMPTS[lang].GENERATE_SHOP_18 : PROMPTS[lang].GENERATE_SHOP;
     const items = await callAI(p);
     if (items && Array.isArray(items)) {
         sys.shop = items.slice(0, 4);
@@ -462,7 +473,8 @@ async function generateMap() {
     
     try {
         const ctx = getContext().chat.slice(-10).map(m => `${m.name}: ${m.mes}`).join('\n');
-        const p = GENERATE_MAP_PROMPT + `\nContext:\n${ctx}`;
+        const lang = globalSettings.language || "en";
+        const p = PROMPTS[lang].GENERATE_MAP + `\n${ctx}`;
         const res = await ConnectionManagerRequestService.sendRequest(globalSettings.apiProfile || getContext().extensionSettings.connectionProfile, [{role:"user", content:p}], undefined, {stream:false, extractData:true});
         let prompt = typeof res === 'string' ? res : res.text;
         prompt = prompt.replace(/(\{|\[|\}|\])/g, '').trim(); 
